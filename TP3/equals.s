@@ -39,10 +39,10 @@ for_loop_rows:
 for_loop_columns:  
         movl -8(%ebp), %ecx     # ecx = c
         cmp %eax, %ecx          # matorder <= c ?
-        jge increment_col       # si c > matorder, sauter a "increment_col"
+        jge increment_row       # si c > matorder, sauter a "increment_col"
 
         # condition if
-        # intmatdata1[c +  r * matorder]
+        # intmatdata1[c + r * matorder]
         movl 16(%ebp), %ebx     # ebx = matorder
         movl -4(%ebp), %eax     # eax = r
         mul %ebx                # eax = r * matorder
@@ -50,8 +50,7 @@ for_loop_columns:
         movl -8(%ebp), %eax     # eax = c
         addl %esi, %eax         # eax = c + r * matorder
         movl 8(%ebp), %edi      # edi = inmatdata1 (adresse)
-        movl (%edi,%eax,4), %eax  # eax = inmatdata1[c +  r * matorder]
-        movl %eax, -12(%ebp)    # -12(ebp) = inmatdata2[c +  r * matorder]
+        movl (%edi,%eax,4), %ecx  # ecx = inmatdata1[c +  r * matorder]
 
         # intmatdata2[c +  r * matorder]
         movl 16(%ebp), %ebx     # ebx = matorder
@@ -61,19 +60,16 @@ for_loop_columns:
         movl -8(%ebp), %eax     # eax = c
         addl %esi, %eax         # eax = c + r * matorder
         movl 12(%ebp), %edi     # edi = inmatdata2 (adresse)
-        movl (%edi,%eax,4), %eax  # eax = inmatdata2[c +  r * matorder]
-        movl %eax, -16(%ebp)    # -12(ebp) = inmatdata2[c +  r * matorder]
+        movl (%edi,%eax,4), %edx  # eax = inmatdata2[c +  r * matorder]
 
         # comparaison des valeurs de chaque matrice
-        movl -12(%ebp), %esi    # esi = inmatdata1[c +  r * matorder]
-        movl -16(%ebp), %edi    # edi = inmatdata2[c +  r * matorder]
-        cmp %esi, %edi          # matdata1[c +  r * matorder] != matdata2[c +  r * matorder] ?       
+        cmp %ecx, %edx          # matdata1[c +  r * matorder] != matdata2[c +  r * matorder] ?       
         jne not_equal           # branchement non conditionel vers "not_equal"
         movl -8(%ebp), %eax     # eax = c
         addl $1, -8(%ebp)       # c = c + 1
         jmp for_loop_columns       # branchement vers for_loop_columns
 
-increment_col:
+increment_row:
         movl -4(%ebp), %eax     # eax = r
         addl $1, %ecx           # ecx = r + 1
         movl %ecx, -4(%ebp)     # r = r + 1
