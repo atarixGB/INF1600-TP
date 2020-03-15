@@ -7,6 +7,7 @@ matrix_row_aver_asm:
 		pushl %ebx
         pushl %esi
         pushl %edi
+
         subl  $12, %esp         # variables locales: r, c, elem
 
         movl $0, -4(%ebp)       # r = 0
@@ -17,13 +18,13 @@ matrix_row_aver_asm:
         movl -4(%ebp), %ecx     # ecx = r
         movl 16(%ebp), %eax     # eax = matorder
         cmp %eax, %ecx
-        jge compute_average
+        jge end
     
     for_loop_2:
         movl -8(%ebp), %ecx     # ecx = c
         movl 16(%ebp), %eax     # eax = matorder
         cmp %eax, %ecx
-        jge for_loop_1          # if c > matorder, jump to "for_loop_1", else continue
+        jge compute_average     # if c > matorder, jump to "compute_average", else continue
 
         # inmatdata[c + r * matorder]
         movl -4(%ebp), %eax     # eax = r
@@ -34,8 +35,8 @@ matrix_row_aver_asm:
         movl 8(%ebp), %edi      # edi = adress of inmatdata
         movl (%edi,%eax,4), %edi    # edi = inmatdata[c + r * matorder]
         movl -12(%ebp), %eax    # eax = elem
-        addl %edi, %eax         # eax = inmatdata[c + r * matorder]
-        movl %eax, -12(%ebp)    # elem = inmatdata[c + r * matorder]
+        addl %edi, %eax         # eax = elem + inmatdata[c + r * matorder]
+        movl %eax, -12(%ebp)    # elem = elem + inmatdata[c + r * matorder]
 
         # change column
         movl -8(%ebp), %eax     # eax = c
@@ -47,17 +48,18 @@ matrix_row_aver_asm:
         movl -12(%ebp), %eax    # eax = elem
         movl 16(%ebp), %ecx     # ecx = matorder
         divl %ecx               # eax = elem / matorder
+        movl %eax, %esi         # esi = elem / matorder
         
         # outmatdata[r]
         movl 12(%ebp), %eax     # eax = address of outmatdata
         movl -4(%ebp), %ecx     # ecx = r
         movl (%eax,%ecx,4), %eax    # eax = outmatada[r]
-        mov %eax, 12(%ebp)
+        mov %eax, 12(%ebp)      # outmatdata = outmatada[r]
 
         movl -4(%ebp), %eax     # eax = r
         addl $1, %eax           # eax = r + 1
         mov %eax, -8(%ebp)      # r = r + 1
-        jmp for_loop_2
+        jmp for_loop_1
 
 	end:
         pop %edi
