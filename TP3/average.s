@@ -11,7 +11,6 @@ matrix_row_aver_asm:
         subl  $12, %esp         # variables locales: r, c, elem
 
         movl $0, -4(%ebp)       # r = 0
-        movl $0, -8(%ebp)       # c = 0
         movl $0, -12(%ebp)      # elem = 0
 
     for_loop_1:
@@ -19,6 +18,8 @@ matrix_row_aver_asm:
         movl 16(%ebp), %eax     # eax = matorder
         cmp %eax, %ecx
         jge end
+
+        movl $0, -8(%ebp)       # c = 0
     
     for_loop_2:
         movl -8(%ebp), %ecx     # ecx = c
