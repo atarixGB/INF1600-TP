@@ -16,12 +16,12 @@ matrix_equals_asm:
         push %ebp      /* Save old base pointer */
         mov %esp, %ebp /* Set ebp to current esp */
 
+        subl $16, %esp          # to allocate memory to local variables and more
+        
         pushl %ebx              # may be useful to have these registers
         pushl %edi
         pushl %esi
 
-        subl $16, %esp          # to allocate memory to local variables and more
-        
         movl $0, -4(%ebp)       # r = 0
 
 for_loop_rows:
@@ -82,10 +82,11 @@ equal:
         movl $1, %eax           # eax = 1 (return value in eax)
 
 end:
-        addl $16, %esp          # to remove local variables from stack
         popl %esi               # to remote esi, edi, ebx from stack      
         popl %edi
         popl %ebx
 
+        addl $16, %esp          # to remove local variables from stack
+        
         leave          /* Restore ebp and esp */
         ret            /* Return to the caller */

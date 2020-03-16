@@ -4,10 +4,6 @@ matrix_row_aver_asm:
         push %ebp      			/* Save old base pointer */
         mov %esp, %ebp 			/* Set ebp to current esp */
 
-		pushl %ebx
-        pushl %esi
-        pushl %edi
-
         subl  $12, %esp         # variables locales: r, c, elem
 
         movl $0, -4(%ebp)       # r = 0
@@ -63,8 +59,6 @@ matrix_row_aver_asm:
         jmp for_loop_rows
 
 	end:
-        pop %edi
-        pop %esi
-        pop %ebx
+
         leave          			/* Restore ebp and esp */
         ret
