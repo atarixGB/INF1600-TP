@@ -17,53 +17,80 @@ matrix_diagonal_asm:
     
     jmp boucle
 
-
-
 boucle:
-    # compare row (esi) with 8(%ebp), end if above
-    cmpl %esi, 8(%ebp)    
+    cmpl %esi, 8(%ebp)
     ja fin
-    
-    # jump to second for loop
-    # reset esi to 0
-    movl $0, %esi
+    # init ebx (colomn)
+    movl $0, %ebx
     jmp boucle_2
-
-    jmp incr
 
 boucle_2:
     # compare colomn to 8(%ebp), go to boucle if above
     cmpl %ebx, 8(%ebp)
-    ja boucle
+    # go back to the 1st loop
+    ja incr
 
-    movl -8(%ebp), %edx
-    movl %edx, %eax
-    mul $4
-    movl %eax, %edx    
+    # check if the two matrices are equal at index
+    # in: ebp - 8 - 4(cIndex + 10*rIndex)
+    # store this in ecx
+    # ecx = 10
+    movl $10, %ecx
+    # eax = esi (row)
+    movl %esi, %eax
+    # eax = 10*row
+    mul %ecx
+    # eax = 10*row + colomn
+    addl %ebx, %eax
+    # ecx = 4
+    movl $4, %ecx
+    # eax = 4(10*row + colomn)
+    mul %ecx
+    # ecx contains ebp
+    movl %ebp, %ecx
+    # ecx = ebp - 8
+    subl $8, %ecx
+    # ecx = ebp - 8 - 4(10*row + colomn)
+    subl %eax, %ecx
 
+    # out: ebp - 8 - 4(cIndex - 10*rIndex - nbElements
+    # edx = 10
+    movl $10, %edx
+    # eax = esi (row)
+    movl %esi, %eax
+    # eax = 10*row
+    mul %edx
+    # eax = 10*row + colomn
+    addl %ebx, %eax
+    # eax = 10*row + colomn + nbElements
+    addl -4(%ebp), %eax
+    # edx = 4
+    movl $4, %edx
+    # eax = 4(10*row + colomn + nbElements)
+    mul %edx
+    # edx contains ebp
+    movl %ebp, %edx
+    # edx = ebp - 8
+    subl $8, %edx
+    # edx = ebp - 8 - 4(10*row + colomn + nbElements)
+    subl %eax, %edx
 
+    # addresses pushed on the stack
+    push %ecx
+    push %edx
+    # values pushed on the stack
+    push (%ecx)
+    push (%edx)
 
-    # use eax to hold value 10
-    movl $10, %eax
-    # eax is now multiplied by esi
-    mul %esi
-    # ebx holds value of row, so add it to eax
-    add %ebx, %eax
-    # compare the values of the 2 matrices
-    # order in the stack, top down:
-    # ebp, out matrix, in matrix, nb elements = -4 ebp
-    # 4 + 4*eax and 4 + 4(eax + nbELement), stock this value in edx
+    movl (%ecx), %ecx
+    movl (%edx), %edx
 
-    addl %eax, %edx
-
-    movl 4(%eax), %ecx
-    cmpl %ecx, 0(,%edx,1)
+    cmpl %ecx, %edx
     jne else
 
-    movl (%edx), %ecx
-    movl %ecx, 4(,%eax,4)
-    
-    jmp incr_2
+    # addresses back 
+    movl -8(%ebp), %ecx
+    movl -12(%ebp), %edx
+
 
 
 else:
