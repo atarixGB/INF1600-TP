@@ -13,7 +13,7 @@ unsigned int change_endianness(unsigned int x)
 	 	 ( x & 0x0000ff00 ) <<  8 | (x & 0x000000ff) << 24; */
 
 	asm volatile (
-		"movl %1, %0 \n\t"	// where %1 = x
+		"movl %1, %0 \n\t"
 		"bswap %0 \n\t"
 		: "=r" (y) 	// sorties --> %0 = y
 		: "r" (x) 	// entrées --> %1 = x
